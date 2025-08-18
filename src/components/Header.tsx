@@ -68,7 +68,7 @@ export function Header({ cartItemsCount }: HeaderProps) {
     return;
   };
 
-  const isLoggedIn = true;
+  const isLoggedIn = false;
 
   return (
     <motion.header

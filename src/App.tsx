@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import PublicRoutes from "./routes/PublicRoutes";
 import PrivateRoute from "./routes/PrivateRoute";
-import Footer from "./components/Footer";
 import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
 
 function App() {
   return (
