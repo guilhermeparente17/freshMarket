@@ -25,6 +25,7 @@ import { Progress } from "@radix-ui/themes";
 import { Button } from "../components/ui/button";
 import { Separator } from "../components/ui/separator";
 import { useNavigate } from "react-router-dom";
+import { useRegister } from "../services/auth";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -91,18 +92,18 @@ export function RegisterPage() {
     setIsLoading(true);
 
     try {
-      //   const success = await register(
-      //     formData.name,
-      //     formData.email,
-      //     formData.password
-      //   );
+      const success = await useRegister({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      });
 
-      //   if (success) {
-      //     toast.success("Conta criada com sucesso!");
-      //     setCurrentPage("home");
-      //   } else {
-      //     toast.error("Erro ao criar conta. Tente novamente.");
-      //   }
+      if (success) {
+        toast.success("Conta criada com sucesso!");
+        navigate("/");
+      } else {
+        toast.error("Erro ao criar conta. Tente novamente.");
+      }
       console.log("Form submitted:", formData);
     } catch (error) {
       toast.error("Erro ao criar conta. Tente novamente.");
@@ -113,37 +114,11 @@ export function RegisterPage() {
 
   return (
     <motion.div
-      className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50"
+      className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-700"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full bg-green-100/30"
-            style={{
-              width: Math.random() * 100 + 50,
-              height: Math.random() * 100 + 50,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              x: [0, Math.random() * 50 - 25],
-              y: [0, Math.random() * 50 - 25],
-            }}
-            transition={{
-              duration: Math.random() * 10 + 10,
-              repeat: Infinity,
-              repeatType: "reverse",
-              ease: "easeInOut",
-            }}
-          />
-        ))}
-      </div>
-
       <div className="relative min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md space-y-6">
           {/* Logo and Header */}

@@ -3,6 +3,7 @@ import PublicRoutes from "./routes/PublicRoutes";
 import PrivateRoute from "./routes/PrivateRoute";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
+import { Toaster } from "sonner";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         />
       </Routes>
       <Footer />
+      <Toaster position="top-right" richColors />
     </>
   );
 }

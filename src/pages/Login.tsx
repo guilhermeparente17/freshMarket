@@ -13,6 +13,7 @@ import {
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
+import { useLogin } from "../services/auth";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -42,42 +43,37 @@ export function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("Form submitted:", formData);
-    toast.success("Login successful!");
+    setIsLoading(true);
+
+    try {
+      const result = await useLogin({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      console.log(result);
+
+      if (result) {
+        toast.success(`Seja bem-vindo ${result.user.name} !`);
+        navigate("/");
+      } else {
+        toast.error("");
+      }
+    } catch (error) {
+      toast.error("");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <motion.div
-      className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50"
+      className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-700"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
       {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full bg-green-100/30"
-            style={{
-              width: Math.random() * 100 + 50,
-              height: Math.random() * 100 + 50,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              x: [0, Math.random() * 50 - 25],
-              y: [0, Math.random() * 50 - 25],
-            }}
-            transition={{
-              duration: Math.random() * 10 + 10,
-              repeat: Infinity,
-              repeatType: "reverse",
-              ease: "easeInOut",
-            }}
-          />
-        ))}
-      </div>
 
       <div className="relative min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md space-y-6">
@@ -93,7 +89,7 @@ export function LoginPage() {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
               FreshMarket
             </h1>
-            <p className="text-muted-foreground mt-2">Entre na sua conta</p>
+            <p className="mt-2 text-white">Entre na sua conta</p>
           </motion.div>
 
           {/* Login Form */}
@@ -235,7 +231,7 @@ export function LoginPage() {
           <motion.div className="text-center" variants={itemVariants}>
             <motion.button
               onClick={() => navigate("/")}
-              className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+              className="text-sm text-white cursor-pointer inline-flex items-center gap-1"
               whileHover={{ x: -2 }}
             >
               ← Voltar para a loja
