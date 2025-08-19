@@ -14,6 +14,7 @@ import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { useLogin } from "../services/auth";
+import { useAuthStore } from "../store/authStore";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -40,6 +41,8 @@ export function LoginPage() {
     password: "",
   });
 
+  const { login } = useAuthStore();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -51,10 +54,9 @@ export function LoginPage() {
         password: formData.password,
       });
 
-      console.log(result);
-
       if (result) {
         toast.success(`Seja bem-vindo ${result.user.name} !`);
+        login(result.user, result.token);
         navigate("/");
       } else {
         toast.error("");

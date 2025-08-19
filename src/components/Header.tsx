@@ -21,6 +21,8 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/bagder";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
+import { toast } from "sonner";
 
 interface HeaderProps {
   cartItemsCount: number;
@@ -47,6 +49,7 @@ const itemVariants = {
 
 export function Header({ cartItemsCount }: HeaderProps) {
   const navigate = useNavigate();
+  const { user, logout } = useAuthStore();
 
   const navItems = [
     { id: "/", label: "Início" },
@@ -64,11 +67,13 @@ export function Header({ cartItemsCount }: HeaderProps) {
   const isAdminPage = false;
 
   const handleLogout = () => {
-    // logout();
+    logout();
+    toast.error("Você saiu da sua conta.");
+    navigate("/");
     return;
   };
 
-  const isLoggedIn = false;
+  const isLoggedIn = user !== null;
 
   return (
     <motion.header
@@ -206,8 +211,10 @@ export function Header({ cartItemsCount }: HeaderProps) {
                 {isLoggedIn ? (
                   <>
                     <div className="px-2 py-1.5">
-                      <p className="text-sm font-medium">name</p>
-                      <p className="text-xs text-muted-foreground">email</p>
+                      <p className="text-sm font-medium">{user.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {user.email}
+                      </p>
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => {}}>
