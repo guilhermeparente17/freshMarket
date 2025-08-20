@@ -4,6 +4,7 @@ interface User {
   id: string;
   name: string;
   email: string;
+  type: string;
 }
 
 interface AuthState {
@@ -13,16 +14,32 @@ interface AuthState {
   logout: () => void;
   register: (user: User, oken: string | null) => void;
   token: string | null;
+  authenticated: (token: string) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  isAuthenticated: false,
-  token: null,
+  user: localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user") as string)
+    : null,
+  token: localStorage.getItem("token"),
+  isAuthenticated: !!localStorage.getItem("token"),
 
-  login: (user, token) => set({ user, token, isAuthenticated: true }),
+  login: (user, token) => {
+    if (!token) return;
 
-  logout: () => set({ user: null, token: null, isAuthenticated: false }),
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
+
+    set({ user, token, isAuthenticated: true });
+  },
+
+  logout: () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    set({ user: null, token: null, isAuthenticated: false });
+  },
 
   register: (user, token) => set({ user, token, isAuthenticated: true }),
+  authenticated: (token: string) => set({ token, isAuthenticated: true }),
 }));

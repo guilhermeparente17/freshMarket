@@ -31,3 +31,18 @@ export const useLogin = async (payload: LoginPayload) => {
     }
   }
 };
+
+export const useLoginAdmin = async (payload: LoginPayload) => {
+  if (!payload) {
+    return;
+  }
+  try {
+    const response = await api.post(`/login-admin`, payload);
+
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw new Error(error?.response?.data?.message);
+    }
+  }
+};

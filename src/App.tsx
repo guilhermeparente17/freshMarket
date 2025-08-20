@@ -1,21 +1,25 @@
-import { Routes, Route } from "react-router-dom";
-import PublicRoutes from "./routes/PublicRoutes";
-import PrivateRoute from "./routes/PrivateRoute";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { Toaster } from "sonner";
+import Routes from "./routes";
+import { useAuthStore } from "./store/authStore";
+import { useEffect } from "react";
 
 function App() {
+  const token = localStorage.getItem("token");
+
+  const { authenticated } = useAuthStore();
+
+  useEffect(() => {
+    if (token) {
+      authenticated(token);
+    }
+  }, []);
+
   return (
     <>
       <Header cartItemsCount={0} />
-      <Routes>
-        <Route path="/*" element={<PublicRoutes />} />
-        <Route
-          path="/admin/*"
-          element={<PrivateRoute isAuthenticated={true} />}
-        />
-      </Routes>
+      <Routes />
       <Footer />
       <Toaster position="top-right" richColors />
     </>

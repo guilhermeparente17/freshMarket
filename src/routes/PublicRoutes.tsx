@@ -5,6 +5,7 @@ import Categories from "../pages/Categories";
 import Cart from "../pages/Cart";
 import { LoginPage } from "../pages/Login";
 import { RegisterPage } from "../pages/Register";
+import { LoginAdmin } from "../pages/LoginAdmin";
 
 const PublicRoutes = () => {
   return (
@@ -14,6 +15,7 @@ const PublicRoutes = () => {
       <Route path="/categories" element={<Categories />} />
       <Route path="/cart" element={<Cart />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/loginAdmin" element={<LoginAdmin />} />
       <Route path="/register" element={<RegisterPage />} />
     </Routes>
   );

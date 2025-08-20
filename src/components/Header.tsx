@@ -58,13 +58,13 @@ export function Header({ cartItemsCount }: HeaderProps) {
   ];
 
   const adminNavItems = [
-    { id: "admin", label: "Dashboard" },
-    { id: "admin-products", label: "Produtos" },
-    { id: "admin-categories", label: "Categorias" },
-    { id: "admin-reports", label: "Relatórios" },
+    { id: "admin/dashboard", label: "Dashboard" },
+    { id: "admin/products", label: "Produtos" },
+    { id: "admin/categories", label: "Categorias" },
+    { id: "admin/reports", label: "Relatórios" },
   ];
 
-  const isAdminPage = false;
+  const isAdminPage = user?.type === "admin";
 
   const handleLogout = () => {
     logout();
@@ -188,7 +188,9 @@ export function Header({ cartItemsCount }: HeaderProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => navigate(isAdminPage ? "/admin" : "/")}
+                onClick={() =>
+                  navigate(isAdminPage ? "/admin/dashboard" : "/loginAdmin")
+                }
                 className={isAdminPage ? "bg-slate-200" : ""}
               >
                 <Settings className="h-5 w-5" />
