@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Plus,
@@ -25,13 +25,9 @@ import {
 } from "../../components/ui/dialog";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textArea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../components/ui/select";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import {
@@ -40,6 +36,8 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
+import { getCategories, postCategories } from "../../services/categories";
+import { Badge } from "../../components/ui/bagder";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -68,90 +66,47 @@ const iconOptions = [
   { name: "Tag", component: Tag },
 ];
 
-const colorOptions = [
-  {
-    name: "Verde",
-    value: "bg-green-100",
-    border: "border-green-200",
-    text: "text-green-700",
-  },
-  {
-    name: "Azul",
-    value: "bg-blue-100",
-    border: "border-blue-200",
-    text: "text-blue-700",
-  },
-  {
-    name: "Vermelho",
-    value: "bg-red-100",
-    border: "border-red-200",
-    text: "text-red-700",
-  },
-  {
-    name: "Amarelo",
-    value: "bg-yellow-100",
-    border: "border-yellow-200",
-    text: "text-yellow-700",
-  },
-  {
-    name: "Roxo",
-    value: "bg-purple-100",
-    border: "border-purple-200",
-    text: "text-purple-700",
-  },
-  {
-    name: "Rosa",
-    value: "bg-pink-100",
-    border: "border-pink-200",
-    text: "text-pink-700",
-  },
-  {
-    name: "Ciano",
-    value: "bg-cyan-100",
-    border: "border-cyan-200",
-    text: "text-cyan-700",
-  },
-  {
-    name: "Laranja",
-    value: "bg-orange-100",
-    border: "border-orange-200",
-    text: "text-orange-700",
-  },
-];
-
 export type Category = {
   id: string;
   name: string;
-  icon: string;
-  color: string;
-  count: number;
   description: string;
 };
+
+type CategoryFormValues = {
+  name: string;
+  description: string;
+};
+
+const schema = yup.object().shape({
+  name: yup.string().required("O nome da categoria é obrigatório"),
+  description: yup.string().required("A descrição é obrigatória"),
+});
+
+interface CategoryFormProps {
+  isEdit?: boolean;
+  onSubmit: (data: CategoryFormValues) => void;
+}
 
 export function AdminCategories() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [newCategory, setNewCategory] = useState<Partial<Category>>({
-    name: "",
-    icon: "Package",
-    color: "bg-green-100",
-    description: "",
-  });
+  const [categories, setCategories] = useState<Category[]>([]);
 
-  //   const filteredCategories = categories.filter((category) =>
-  //     category.name.toLowerCase().includes(searchTerm.toLowerCase())
-  //   );
+  console.log(categories);
 
-  //   const totalCategories = categories.length;
-  //   const totalProducts = products.length;
-  //   const mostPopularCategory = categories.reduce((prev, current) =>
-  //     current.count > prev.count ? current : prev
-  //   );
+  const filteredCategories = categories?.filter((category) =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalCategories = categories.length;
+  // const totalProducts = products.length;
+  // const mostPopularCategory = categories.reduce((prev, current) =>
+  //   current?.count > prev?.count ? current : prev
+  // );
 
   const handleAddCategory = () => {
-    if (!newCategory.name || !newCategory.icon || !newCategory.color) return;
-
+    // if (!newCategory.name || !newCategory.icon || !newCategory.color) return;
     // const category: Category = {
     //   id: newCategory.name.toLowerCase().replace(/\s+/g, "-"),
     //   name: newCategory.name,
@@ -160,46 +115,32 @@ export function AdminCategories() {
     //   count: 0,
     //   description: newCategory.description || "",
     // };
-
     // setCategories([...categories, category]);
-    setNewCategory({
-      name: "",
-      icon: "Package",
-      color: "bg-green-100",
-      description: "",
-    });
-    setIsAddDialogOpen(false);
+    // setCategories([]);
+    // setIsAddDialogOpen(false);
   };
 
-  const handleEditCategory = (category: Category) => {
-    setEditingCategory(category);
-    setNewCategory(category);
-  };
+  // const handleEditCategory = (category: Category) => {
+  //   setEditingCategory(category);
+  //   setCategories(category);
+  // };
 
-  const handleUpdateCategory = () => {
-    if (
-      !editingCategory ||
-      !newCategory.name ||
-      !newCategory.icon ||
-      !newCategory.color
-    )
-      return;
+  // const handleUpdateCategory = () => {
+  //   if (!editingCategory || !categories.name) return;
 
-    // const updatedCategories = categories.map((c) =>
-    //   c.id === editingCategory.id
-    //     ? ({ ...editingCategory, ...newCategory } as Category)
-    //     : c
-    // );
+  //   // const updatedCategories = categories.map((c) =>
+  //   //   c.id === editingCategory.id
+  //   //     ? ({ ...editingCategory, ...newCategory } as Category)
+  //   //     : c
+  //   // );
 
-    // setCategories(updatedCategories);
-    setEditingCategory(null);
-    setNewCategory({
-      name: "",
-      icon: "Package",
-      color: "bg-green-100",
-      description: "",
-    });
-  };
+  //   // setCategories(updatedCategories);
+  //   setEditingCategory(null);
+  //   setCategories({
+  //     name: "",
+  //     description: "",
+  //   });
+  // };
 
   //   const handleDeleteCategory = (categoryId: string) => {
   //     setCategories(categories.filter((c) => c.id !== categoryId));
@@ -210,64 +151,107 @@ export function AdminCategories() {
     return iconOption ? iconOption.component : Package;
   };
 
-  const CategoryForm = ({ isEdit = false }) => (
-    <div className="grid gap-4 py-4">
-      <div className="space-y-2">
-        <Label htmlFor="name">Nome da Categoria</Label>
-        <Input
-          id="name"
-          value={newCategory.name}
-          onChange={(e) =>
-            setNewCategory((prev) => ({ ...prev, name: e.target.value }))
-          }
-          placeholder="Ex: Frutas Tropicais"
-        />
-      </div>
+  const token = localStorage.getItem("token");
 
-      <div className="space-y-2">
-        <Label htmlFor="description">Descrição</Label>
-        <Textarea
-          id="description"
-          value={newCategory.description}
-          onChange={(e) =>
-            setNewCategory((prev) => ({ ...prev, description: e.target.value }))
-          }
-          placeholder="Descreva a categoria..."
-          rows={3}
-        />
-      </div>
+  async function handleGetCategories() {
+    if (!token) return;
+    try {
+      const response = await getCategories(token);
+      console.log(response);
+      setCategories(response);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
-      {/* Preview */}
-      {newCategory.name && newCategory.icon && newCategory.color && (
+  useEffect(() => {
+    handleGetCategories();
+  }, []);
+
+  const handleSaveCategory = async (data: CategoryFormValues) => {
+    console.log(data);
+    if (!token) return;
+
+    try {
+      await postCategories(token, data);
+      setIsAddDialogOpen(false);
+      handleGetCategories();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const CategoryForm = ({ isEdit = false, onSubmit }: CategoryFormProps) => {
+    const {
+      register,
+      handleSubmit,
+      formState: { errors, isSubmitting },
+      watch,
+    } = useForm<CategoryFormValues>({
+      resolver: yupResolver(schema),
+      defaultValues: {
+        name: "",
+        description: "",
+      },
+    });
+
+    const values = watch();
+
+    return (
+      <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
         <div className="space-y-2">
-          <Label>Preview</Label>
-          <div className="flex items-center gap-3 p-3 border rounded-lg bg-slate-50">
-            <div
-              className={`w-12 h-12 rounded-lg ${newCategory.color} flex items-center justify-center`}
-            >
-              {(() => {
-                const IconComponent = getIconComponent(newCategory.icon);
-                return <IconComponent className="h-6 w-6 text-slate-700" />;
-              })()}
-            </div>
-            <div>
-              <h3 className="font-medium">{newCategory.name}</h3>
-              <p className="text-sm text-muted-foreground">
-                {newCategory.description}
-              </p>
+          <Label htmlFor="name">Nome da Categoria</Label>
+          <Input
+            id="name"
+            placeholder="Ex: Frutas Tropicais"
+            {...register("name")}
+          />
+          {errors.name && (
+            <p className="text-sm text-red-500">{errors.name.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="description">Descrição</Label>
+          <Textarea
+            id="description"
+            placeholder="Descreva a categoria..."
+            rows={3}
+            {...register("description")}
+          />
+          {errors.description && (
+            <p className="text-sm text-red-500">{errors.description.message}</p>
+          )}
+        </div>
+
+        {/* Preview */}
+        {values.name && values.description && (
+          <div className="space-y-2">
+            <Label>Preview</Label>
+            <div className="flex items-center gap-3 p-3 border rounded-lg bg-slate-50">
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center">
+                {/* Aqui você pode renderizar um ícone se precisar */}
+              </div>
+              <div>
+                <h3 className="font-medium">{values.name}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {values.description}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <Button
-        onClick={isEdit ? handleUpdateCategory : handleAddCategory}
-        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
-      >
-        {isEdit ? "Atualizar" : "Adicionar"} Categoria
-      </Button>
-    </div>
-  );
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+        >
+          {isEdit ? "Atualizar" : "Adicionar"} Categoria
+        </Button>
+      </form>
+    );
+  };
 
   return (
     <motion.div
@@ -304,13 +288,12 @@ export function AdminCategories() {
                 <DialogHeader>
                   <DialogTitle>Adicionar Nova Categoria</DialogTitle>
                 </DialogHeader>
-                <CategoryForm />
+                <CategoryForm onSubmit={handleSaveCategory} />
               </DialogContent>
             </Dialog>
           </div>
         </motion.div>
 
-        {/* Stats Cards */}
         <motion.div
           className="grid grid-cols-1 md:grid-cols-3 gap-6"
           variants={containerVariants}
@@ -318,7 +301,7 @@ export function AdminCategories() {
           {[
             {
               title: "Total de Categorias",
-              value: 0,
+              value: categories.length,
               icon: Grid3X3,
               color: "bg-blue-500",
               description: "Categorias ativas",
@@ -337,7 +320,7 @@ export function AdminCategories() {
               color: "bg-purple-500",
               description: `count produtos`,
             },
-          ].map((stat, index) => (
+          ].map((stat) => (
             <motion.div key={stat.title} variants={itemVariants}>
               <Card className="hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
@@ -380,20 +363,16 @@ export function AdminCategories() {
           </Card>
         </motion.div>
 
-        {/* Categories Grid */}
         <motion.div variants={itemVariants}>
           <Card>
             <CardHeader>
-              <CardTitle>Categorias (0)</CardTitle>
+              <CardTitle>Categorias ({categories.length})</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 <AnimatePresence>
-                  {/* {filteredCategories.map((category, index) => {
-                    const IconComponent = getIconComponent(category.icon);
-                    const colorOption = colorOptions.find(
-                      (c) => c.value === category.color
-                    );
+                  {filteredCategories.map((category, index) => {
+                    const IconComponent = getIconComponent("Tag");
 
                     return (
                       <motion.div
@@ -408,7 +387,7 @@ export function AdminCategories() {
                           <CardContent className="p-6">
                             <div className="flex items-start justify-between mb-4">
                               <div
-                                className={`w-12 h-12 rounded-lg ${category.color} flex items-center justify-center`}
+                                className={`w-12 h-12 rounded-lg flex items-center justify-center`}
                               >
                                 <IconComponent className="h-6 w-6 text-slate-700" />
                               </div>
@@ -429,9 +408,7 @@ export function AdminCategories() {
                                         variant="ghost"
                                         size="icon"
                                         className="h-8 w-8"
-                                        onClick={() =>
-                                          handleEditCategory(category)
-                                        }
+                                        onClick={() => {}}
                                       >
                                         <Edit className="h-3 w-3" />
                                       </Button>
@@ -443,7 +420,7 @@ export function AdminCategories() {
                                         Editar Categoria
                                       </DialogTitle>
                                     </DialogHeader>
-                                    <CategoryForm isEdit />
+                                    {/* <CategoryForm isEdit /> */}
                                   </DialogContent>
                                 </Dialog>
 
@@ -455,9 +432,7 @@ export function AdminCategories() {
                                     variant="ghost"
                                     size="icon"
                                     className="h-8 w-8 text-destructive hover:text-destructive"
-                                    onClick={() =>
-                                      handleDeleteCategory(category.id)
-                                    }
+                                    onClick={() => {}}
                                   >
                                     <Trash2 className="h-3 w-3" />
                                   </Button>
@@ -475,9 +450,9 @@ export function AdminCategories() {
                             <div className="flex items-center justify-between">
                               <Badge
                                 variant="secondary"
-                                className={`${colorOption?.text || ""}`}
+                                className={`text-green-700`}
                               >
-                                {category.count} produtos
+                                0 produtos
                               </Badge>
 
                               <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -489,7 +464,7 @@ export function AdminCategories() {
                         </Card>
                       </motion.div>
                     );
-                  })} */}
+                  })}
                 </AnimatePresence>
               </div>
 
